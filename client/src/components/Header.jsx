@@ -32,7 +32,7 @@ const Header = () => {
   };
 
   return (
-    <header className="flex justify-between items-center bg-primary p-4">
+    <header className="flex justify-between items-center bg-primary py-4 px-10">
       <Link to="/">
         <img src={logoImg} alt="logo" className="max-w-32 max-h-32" />
       </Link>
@@ -53,7 +53,7 @@ const Header = () => {
       <div className="flex-center relative">
         {!isSearchVisible ? (
           <div
-            className="mx-2 bg-white p-4 rounded-sm hover:bg-secondary hover:text-white transition-all duration-300 ease-in-out shadow-sm cursor-pointer max-lg:hidden"
+            className="mx-2 bg-white p-4 rounded-full hover:bg-secondary hover:text-white transition-all duration-300 ease-in-out shadow-sm cursor-pointer max-lg:hidden"
             onClick={handleSearchClick}
           >
             <FaSearch className="w-5 h-5 max-md:w-4 max-md:h-4" />
@@ -63,7 +63,7 @@ const Header = () => {
             initial={{ width: 0, opacity: 0 }}
             animate={{ scale: 1, x: -200, width: "200px", opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="absolute bg-white rounded shadow-sm overflow-hidden h-10 max-lg:hidden flex items-center"
+            className="absolute bg-white rounded-full shadow-sm overflow-hidden h-10 max-lg:hidden flex items-center"
             onSubmit={handleSearchSubmit}
           >
             <input
@@ -91,7 +91,7 @@ const Header = () => {
         )}
 
         <div
-          className="ml-16 bg-white p-4 rounded-sm hover:bg-secondary  transition-all duration-300 ease-in-out shadow-sm relative"
+          className="ml-16 bg-white p-4 rounded-full hover:bg-secondary  transition-all duration-300 ease-in-out shadow-sm relative"
           onMouseEnter={() => setIsDropdownVisible(true)}
           onMouseLeave={() => setIsDropdownVisible(false)}
         >
