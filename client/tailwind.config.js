@@ -8,6 +8,7 @@ export default {
       night: "#0B0B0B",
       black: "#000000",
       white: "#FAF9F7",
+      blue: "#0866FF",
     },
     extend: {},
   },
