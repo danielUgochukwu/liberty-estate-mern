@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: "https://thenounproject.com/icon/user-avatar-4035889/",
+      default: "",
     },
   },
   { timestamps: true }
