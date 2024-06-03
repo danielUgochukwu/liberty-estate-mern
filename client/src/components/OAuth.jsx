@@ -29,7 +29,7 @@ const OAuth = () => {
       });
       const data = await res.json();
       dispatch(signInSuccess(data));
-      console.log(data);
+
       navigate("/");
     } catch (error) {
       console.log(`couldn't sign in: ${error}`);
@@ -38,7 +38,7 @@ const OAuth = () => {
   return (
     <button
       type="button"
-      className="w-full flex items-center justify-center py-2 px-4 bg-red-600 text-night border border-secondary font-semibold rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+      className="w-full flex items-center justify-center py-2 px-4 bg-red-600 text-night border border-secondary font-semibold rounded-md shadow-sm hover:bg-red-700 focus:outline-none"
       onClick={handleGoogleClick}
     >
       <FcGoogle className="text-xl mr-3" />
