@@ -8,14 +8,29 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { app } from "../firebase";
 
 const Profile = () => {
   const [editProfile, setEditProfile] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [editedProfileImage, setEditedProfileImage] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [password, setPassword] = useState("");
   const fileInputRef = useRef(null);
+  const [uploadError, setUploadError] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
+  const [formData, setFormData] = useState({
+    avatar: currentUser.avatar,
+    username: currentUser.username,
+    email: currentUser.email,
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -26,25 +41,62 @@ const Profile = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditedProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+  useEffect(() => {
+    if (editedProfileImage) {
+      handleImageUpload(editedProfileImage);
     }
+  }, [editedProfileImage]);
+
+  const handleImageUpload = (file) => {
+    const storage = getStorage(app);
+    const fileName = new Date().getTime() + file.name;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(Math.round(progress));
+      },
+      (error) => {
+        console.error("Image upload failed:", error);
+        setUploadError(true);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setFormData((prevData) => ({ ...prevData, avatar: downloadURL }));
+          setProfileImage(downloadURL);
+          setUploadProgress(0); // Reset progress once upload completes
+        });
+      }
+    );
   };
 
   const handleClick = () => {
     fileInputRef.current.click();
   };
 
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) {
+      setEditedProfileImage(e.target.files[0]);
+    }
+  };
+
   const handleSaveChanges = (e) => {
     e.preventDefault();
-    setProfileImage(editedProfileImage);
     setEditProfile(false);
+    // Here you might want to dispatch an action to save the updated profile data
+    // e.g., dispatch(updateUserProfile(formData))
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
@@ -85,7 +137,7 @@ const Profile = () => {
       ) : null}
       <div
         className={`w-full ${
-          !editProfile || !isMobile ? "md:w-3/4" : "h-fill"
+          !editProfile || !isMobile ? "md:w-3/4" : "h-full"
         } p-4 md:p-8 flex-center`}
       >
         {editProfile && (
@@ -102,17 +154,26 @@ const Profile = () => {
               <div className="relative">
                 <div className="relative w-24 h-24 md:w-32 md:h-32">
                   <img
-                    src={editedProfileImage || currentUser.avatar}
+                    src={
+                      editedProfileImage
+                        ? URL.createObjectURL(editedProfileImage)
+                        : currentUser.avatar
+                    }
                     alt="Profile"
                     className="w-full h-full rounded-full mb-2"
                     onClick={handleClick}
                   />
+                  {uploadProgress > 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 rounded-full">
+                      <span className="text-white">{uploadProgress}%</span>
+                    </div>
+                  )}
                 </div>
                 <input
                   type="file"
                   ref={fileInputRef}
                   className="hidden"
-                  onChange={handleImageUpload}
+                  onChange={handleFileChange}
                   accept="image/*"
                 />
               </div>
@@ -120,6 +181,9 @@ const Profile = () => {
             <form className="space-y-4" onSubmit={handleSaveChanges}>
               <div>
                 <input
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
                   placeholder="Username"
                   id="username"
                   type="text"
@@ -128,6 +192,9 @@ const Profile = () => {
               </div>
               <div>
                 <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="Email"
                   id="email"
                   type="email"
@@ -136,6 +203,9 @@ const Profile = () => {
               </div>
               <div>
                 <input
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                   id="password"
                   type="password"
