@@ -69,6 +69,7 @@ const Profile = () => {
           setFormData((prevData) => ({ ...prevData, avatar: downloadURL }));
           setProfileImage(downloadURL);
           setUploadProgress(0); // Reset progress once upload completes
+          setUploadError(false); // Clear error state on successful upload
         });
       }
     );
@@ -163,11 +164,6 @@ const Profile = () => {
                     className="w-full h-full rounded-full mb-2"
                     onClick={handleClick}
                   />
-                  {uploadProgress > 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 rounded-full">
-                      <span className="text-white">{uploadProgress}%</span>
-                    </div>
-                  )}
                 </div>
                 <input
                   type="file"
@@ -176,6 +172,17 @@ const Profile = () => {
                   onChange={handleFileChange}
                   accept="image/*"
                 />
+              </div>
+              <div className="text-center my-2">
+                {uploadError ? (
+                  <span className="text-red-500">Error uploading image</span>
+                ) : uploadProgress > 0 && uploadProgress < 100 ? (
+                  <span className="text-slate-700">{`Uploading... ${uploadProgress}%`}</span>
+                ) : uploadProgress === 100 ? (
+                  <span className="text-green">Image uploaded</span>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
             <form className="space-y-4" onSubmit={handleSaveChanges}>

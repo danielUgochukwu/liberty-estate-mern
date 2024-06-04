@@ -10,6 +10,8 @@ export default {
       white: "#FFFFFF",
       blue: "#0866FF",
       red: "#d00000",
+      gray: "#E5E5E5",
+      green: "#38b000",
     },
     extend: {},
   },
